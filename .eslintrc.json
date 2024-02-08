@@ -1,0 +1,44 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "rules": {
+    "semi": ["error", "always"], // Semicolon at the end of each statement
+    "quotes": ["error", "double"], // Enforce the use of double quotes
+    "indent": ["warn", 2], // Set your preferred indentation level
+    "comma-spacing": ["error", { "before": false, "after": true }], // Disallow spaces before commas and require spaces after commas
+    // "no-console": "warn", // Avoid using console.log() in production code
+    "no-unused-vars": "error", // Detect unused variables
+    "no-extra-semi": "error", // Avoid unnecessary semicolons
+    "arrow-spacing": ["error", { "before": true, "after": true }], // Enforce spacing around arrows in arrow functions
+    "object-curly-spacing": ["error", "always"], // Enforce spacing inside of curly braces in object literals
+    "prefer-template": "error", // Encourage the use of template literals
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1 }], // Limit consecutive empty lines
+    "no-trailing-spaces": "error", // Disallow trailing spaces
+    "no-var": "error", // Use let or const, avoid var
+    "prefer-const": "error", // Encourage the use of const when a variable is not reassigned
+    "prefer-arrow-callback": "error", // Use arrow functions for callbacks
+    "prefer-rest-params": "error", // Use the rest parameters syntax
+    "prefer-spread": "error", // Use the spread operator instead of apply()
+    "arrow-parens": ["error", "always"], // Enforce parentheses around arrow function parameters
+    "no-use-before-define": ["error", { "functions": false, "classes": true }], // Allow function hoisting but not variable hoisting
+    "eqeqeq": "error", // Enforce the use of === and !==
+    "curly": "error", // Enforce the use of curly braces for control flow statements
+    "prettier/prettier": "error" // Use Prettier to format code
+  }
+}
