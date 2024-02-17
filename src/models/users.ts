@@ -1,44 +1,53 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose from "mongoose";
 
-export interface IUser extends Document {
+export interface IUser extends mongoose.Document {
+  first: string;
+  last: string;
   email: string;
-  firstName: string;
-  lastName: string;
   phone: string;
   password: string;
-  ssoId?: string;
-  ssoProvider?: string;
   isEmailVerified: boolean;
+  isAdmin: boolean;
   picture?: string;
-  role: string;
 }
 
-const UserSchema: Schema = new Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    phone: { type: String, required: true },
-    password: { type: String, required: true },
-    ssoId: { type: String, required: false },
-    ssoProvider: { type: String },
-    isEmailVerified: { type: Boolean, default: false },
-    role: { type: String, required: true },
-    picture: {
-      type: String,
-      default:
-        "null",
-    },
+const userSchema = new mongoose.Schema<IUser>({
+  first: {
+    type: String,
+    required: true,
   },
-  { timestamps: true },
-);
+  last: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  picture: {
+    type: String,
+  },
+});
 
-const User = mongoose.model<IUser>("User", UserSchema);
+const User = mongoose.model<IUser>("User", userSchema);
 
 export default User;

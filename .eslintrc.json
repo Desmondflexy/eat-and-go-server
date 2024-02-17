@@ -18,6 +18,8 @@
     "prettier"
   ],
   "rules": {
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-var-requires": 0,
     "semi": ["error", "always"], // Semicolon at the end of each statement
     "quotes": ["error", "double"], // Enforce the use of double quotes
     "indent": ["warn", 2], // Set your preferred indentation level
@@ -38,7 +40,6 @@
     "arrow-parens": ["error", "always"], // Enforce parentheses around arrow function parameters
     "no-use-before-define": ["error", { "functions": false, "classes": true }], // Allow function hoisting but not variable hoisting
     "eqeqeq": "error", // Enforce the use of === and !==
-    "curly": "error", // Enforce the use of curly braces for control flow statements
     "prettier/prettier": "error" // Use Prettier to format code
   }
 }
