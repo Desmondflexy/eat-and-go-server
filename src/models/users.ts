@@ -8,6 +8,7 @@ export interface IUser extends mongoose.Document {
   password: string;
   isEmailVerified: boolean;
   isAdmin: boolean;
+  picture?: string;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -38,6 +39,9 @@ const userSchema = new mongoose.Schema<IUser>({
   isAdmin: {
     type: Boolean,
     default: false,
+  },
+  picture: {
+    type: String,
   },
 });
 
