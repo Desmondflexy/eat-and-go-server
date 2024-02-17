@@ -16,6 +16,7 @@ export async function signup(req: Request, res: Response) {
   try {
     // validate request body
     if (error) {
+      console.error(error);
       return res.status(400).json({
         message: "Validation failed",
         error: error.details.map((err) => err.message),
@@ -23,6 +24,11 @@ export async function signup(req: Request, res: Response) {
     }
 
     const { fullname, email, phone, password } = req.body;
+    if (fullname.split(" ").length !== 2) {
+      return res.status(400).json({
+        message: "Fullname must contain first and last name only",
+      });
+    }
     let user = await User.findOne({ email });
     if (user) {
       return res.status(409).json({
@@ -104,18 +110,20 @@ export async function requestPasswordReset(req: Request, res: Response) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    let token = await Token.findOne({ userId: user._id, type: "password" });
+    const token = await Token.findOne({ userId: user._id, type: "password" });
     if (token) await token.deleteOne();
 
-    token = await Token.create({
+    await Token.create({
       userId: user._id,
       type: "password",
     });
 
-    const message = getResetPasswordText(user.first, token.id);
-
+    const message = getResetPasswordText(user.first, user.id);
     sendMail(user.email, "Password Reset (Eat-and-Go)", message);
-    return res.json({ message: "Password reset link sent to your email" });
+
+    return res.json({
+      message: "Password reset link has been sent to your email",
+    });
   } catch (error: any) {
     console.error(error);
     res.status(500).json({
@@ -134,11 +142,11 @@ export async function resetPassword(req: Request, res: Response) {
         error: error.details.map((err) => err.message),
       });
     }
-    const { tokenId } = req.params;
-    const token = await Token.findOne({ _id: tokenId });
+    const { userId } = req.params;
+    const token = await Token.findOne({ userId, type: "password" });
     if (!token) return res.status(404).json({ message: "Invalid token" });
 
-    const user = (await User.findById(token.userId)) as IUser;
+    const user = (await User.findById(userId)) as IUser;
 
     user.password = await bcrypt.hash(req.body.password, 10);
     await user.save();
