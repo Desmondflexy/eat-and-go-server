@@ -47,12 +47,15 @@ export async function signup(req: Request, res: Response) {
     });
 
     // send email verification link
-    const token = await Token.create({
+    const token = await Token.findOne({ userId: user._id, type: "email" });
+    if (token) await token.deleteOne();
+
+    await Token.create({
       userId: user._id,
       type: "email",
     });
 
-    const message = getEmailVerificationText(user.first, token.id);
+    const message = getEmailVerificationText(user.first, user.id);
 
     sendMail(email, "Email Verification (Eat-and-Go)", message);
     res.status(201).json({
@@ -70,13 +73,11 @@ export async function signup(req: Request, res: Response) {
 /**Send email verification link to user email. */
 export async function verifyEmail(req: Request, res: Response) {
   try {
-    const { tokenId } = req.params;
-    if (!tokenId) {
-      return res.status(400).json({ message: "Token id is required" });
-    }
-    const token = await Token.findById(tokenId);
+    const { userId } = req.params;
+
+    const token = await Token.findOne({ userId, type: "email" });
     if (!token) {
-      return res.status(404).json({ message: "Invalid token" });
+      return res.status(404).json({ message: "Link is invalid" });
     }
     const user = await User.findById(token.userId);
     if (!user) {
@@ -144,7 +145,12 @@ export async function resetPassword(req: Request, res: Response) {
     }
     const { userId } = req.params;
     const token = await Token.findOne({ userId, type: "password" });
-    if (!token) return res.status(404).json({ message: "Invalid token" });
+    if (!token) {
+      return res.status(404).json({
+        message:
+          "Operation failed, please request for a new password reset link.",
+      });
+    }
 
     const user = (await User.findById(userId)) as IUser;
 

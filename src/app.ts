@@ -10,6 +10,7 @@ import authRouter from "./routes/auth";
 
 import dotenv from "dotenv";
 import connectDB from "./config/database";
+import cors from "cors";
 
 dotenv.config();
 connectDB();
@@ -19,6 +20,12 @@ const app = express();
 // view engine setup
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "ejs");
+
+const corsOptions = {
+  origin: true,
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 app.use(logger("dev"));
 app.use(express.json());
