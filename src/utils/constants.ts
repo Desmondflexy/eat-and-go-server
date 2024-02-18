@@ -14,7 +14,7 @@ export const getEmailVerificationText = (name: string, userId: string) => {
       Verify Email
     </button>
   </a>
-  `;˚∑
+  `;
   return message;
 };
 
