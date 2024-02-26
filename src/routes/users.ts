@@ -1,9 +1,11 @@
 import express from "express";
+import { deleteUser, getAllUsers, getUser } from "../controllers/users";
+import { authenticate } from "../middleware/authentication";
+
 const router = express.Router();
 
-/* GET users listing. */
-router.get("/", (req, res) => {
-  res.send("respond with a resource");
-});
+router.get("/", authenticate, getAllUsers);
+router.get("/user", authenticate, getUser);
+router.delete("/user", authenticate, deleteUser);
 
 export default router;

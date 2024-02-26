@@ -146,12 +146,18 @@ export async function resetPassword(req: Request, res: Response) {
     const { userId } = req.params;
     const token = await Token.findOne({ userId, type: "password" });
     if (!token) {
-      return res.status(404).json({
+      return res.status(400).json({
         message:
           "Operation failed, please request for a new password reset link.",
       });
     }
 
+    if (Date.now() - Date.parse(token.createdAt) > 1000 * 60 * 60 * 2) {
+      await token.deleteOne();
+      return res.status(400).json({
+        message: "Password reset link has expired, please request a new one",
+      });
+    }
     const user = (await User.findById(userId)) as IUser;
 
     user.password = await bcrypt.hash(req.body.password, 10);
@@ -192,7 +198,7 @@ export async function login(req: Request, res: Response) {
 
     const jwtPayload: IPayload = {
       id: user._id,
-      isAdmin: user.isAdmin,
+      role: user.role,
     };
 
     const token = jwt.sign(jwtPayload, secretKey, { expiresIn });

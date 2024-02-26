@@ -3,14 +3,10 @@ import jwt from "jsonwebtoken";
 
 export interface IPayload {
   id: string;
-  isAdmin: boolean;
+  role: string;
 }
 
-export function authenticateToken(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export function authenticate(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.split(" ")[1] || req.cookies.token;
 
   if (!token) {
@@ -31,16 +27,6 @@ export function authenticateToken(
       error: "Invalid token",
     });
   }
-}
-
-export function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.user.isAdmin) {
-    return res.status(403).json({
-      message: "Forbidden",
-      error: "You are not authorized to access this resource.",
-    });
-  }
-  next();
 }
 
 declare module "express-serve-static-core" {

@@ -26,7 +26,8 @@ export const getResetPasswordText = (name: string, userId: string) => {
     <button style="background-color: blue; border-radius: 4px; border: none; color: white; padding: 8px 12px;">
       Reset Password
     </button>
-  </a>
+  </a> <br>
+  <p>Note that this link will expire after 2hrs.</p>
   `;
   return message;
 };
