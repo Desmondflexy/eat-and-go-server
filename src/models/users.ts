@@ -7,46 +7,52 @@ export interface IUser extends mongoose.Document {
   phone: string;
   password: string;
   isEmailVerified: boolean;
-  isAdmin: boolean;
+  role: string;
   picture?: string;
 }
 
-const userSchema = new mongoose.Schema<IUser>({
-  first: {
-    type: String,
-    required: true,
+const userSchema = new mongoose.Schema<IUser>(
+  {
+    first: {
+      type: String,
+      required: true,
+    },
+    last: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    role: {
+      type: String,
+      enum: ["customer", "vendor", "admin"],
+      default: "customer",
+    },
+    picture: {
+      type: String,
+    },
   },
-  last: {
-    type: String,
-    required: true,
+  {
+    timestamps: true,
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  isEmailVerified: {
-    type: Boolean,
-    default: false,
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  picture: {
-    type: String,
-  },
-});
+);
 
 const User = mongoose.model<IUser>("User", userSchema);
 
