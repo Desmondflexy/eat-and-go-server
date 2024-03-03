@@ -10,8 +10,11 @@ import {
 } from "../utils/constants";
 import jwt from "jsonwebtoken";
 import { IPayload } from "../middleware/authentication";
+import { passwordCheck } from "../utils/helper-functions";
 
 export async function signup(req: Request, res: Response) {
+  console.log(req.url);
+  const role = "/signup" === req.url ? "customer" : "vendor";
   const { error } = v.signup.validate(req.body, v.options);
   try {
     // validate request body
@@ -24,6 +27,15 @@ export async function signup(req: Request, res: Response) {
     }
 
     const { fullname, email, phone, password } = req.body;
+
+    const validPassword = passwordCheck(password);
+    if (validPassword !== "valid") {
+      return res.status(400).json({
+        message: "Validation failed",
+        error: validPassword,
+      });
+    }
+
     if (fullname.split(" ").length !== 2) {
       return res.status(400).json({
         message: "Fullname must contain first and last name only",
@@ -44,6 +56,7 @@ export async function signup(req: Request, res: Response) {
       email,
       phone,
       password: await bcrypt.hash(password, 10),
+      role,
     });
 
     // send email verification link
@@ -70,14 +83,17 @@ export async function signup(req: Request, res: Response) {
   }
 }
 
-/**Send email verification link to user email. */
 export async function verifyEmail(req: Request, res: Response) {
   try {
     const { userId } = req.params;
 
     const token = await Token.findOne({ userId, type: "email" });
     if (!token) {
-      return res.status(404).json({ message: "Link is invalid" });
+      return res
+        .status(404)
+        .send(
+          `Email already verified, please <a href="${process.env.CLIENT_URL}/login">login</a>.`,
+        );
     }
     const user = await User.findById(token.userId);
     if (!user) {
@@ -143,6 +159,17 @@ export async function resetPassword(req: Request, res: Response) {
         error: error.details.map((err) => err.message),
       });
     }
+
+    const { password } = req.body;
+
+    const validPassword = passwordCheck(password);
+    if (validPassword !== "valid") {
+      return res.status(400).json({
+        message: "Validation failed",
+        error: validPassword,
+      });
+    }
+
     const { userId } = req.params;
     const token = await Token.findOne({ userId, type: "password" });
     if (!token) {
@@ -160,7 +187,7 @@ export async function resetPassword(req: Request, res: Response) {
     }
     const user = (await User.findById(userId)) as IUser;
 
-    user.password = await bcrypt.hash(req.body.password, 10);
+    user.password = await bcrypt.hash(password, 10);
     await user.save();
     await token.deleteOne();
     return res.json({ message: "Password reset successful" });
@@ -209,6 +236,15 @@ export async function login(req: Request, res: Response) {
 
     return res.json({
       message: "Login successful",
+      user: {
+        _id: user._id,
+        first: user.first,
+        last: user.last,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
       token,
     });
   } catch (error: any) {
