@@ -29,6 +29,16 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+export function isVendor(req: Request, res: Response, next: NextFunction) {
+  if (req.user.role !== "vendor") {
+    return res.status(403).json({
+      message: "Forbidden",
+      error: "You are not authorized to access this resource",
+    });
+  }
+  next();
+}
+
 declare module "express-serve-static-core" {
   interface Request {
     user: IPayload;

@@ -13,7 +13,6 @@ import { IPayload } from "../middleware/authentication";
 import { passwordCheck } from "../utils/helper-functions";
 
 export async function signup(req: Request, res: Response) {
-  console.log(req.url);
   const role = "/signup" === req.url ? "customer" : "vendor";
   const { error } = v.signup.validate(req.body, v.options);
   try {
