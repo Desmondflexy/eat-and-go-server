@@ -34,3 +34,21 @@ export const resetPassword = joi.object().keys({
     .required()
     .messages({ "any.only": "Passwords do not match" }),
 });
+
+export const addDish = joi.object().keys({
+  name: joi.string().required(),
+  category: joi.string().required(),
+  size: joi.number().required(),
+  price: joi.number().required(),
+  notes: joi.string(),
+  picture: joi.string().required(),
+});
+
+export const updateDish = joi.object().keys({
+  name: joi.string(),
+  category: joi.string(),
+  size: joi.number(),
+  price: joi.number(),
+  notes: joi.string(),
+  picture: joi.string(),
+});
