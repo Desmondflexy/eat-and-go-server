@@ -4,7 +4,7 @@ import { authenticate } from "../middleware/authentication";
 
 const router = express.Router();
 
-router.get("/", authenticate, getAllUsers);
+router.get("/", getAllUsers);
 router.get("/user", authenticate, getUser);
 router.delete("/user", authenticate, deleteUser);
 

@@ -11,4 +11,14 @@ router.post("/reset-password/:userId", authController.resetPassword);
 router.post("/login", authController.login);
 router.get("/logout", authController.logout);
 
+// router.get("/login/federated/google", passport.authenticate("google"));
+
+// router.get(
+//   "/oauth2/redirect/google",
+//   passport.authenticate("google", {
+//     successRedirect: "/",
+//     failureRedirect: "/login",
+//   }),
+// );
+
 export default router;
