@@ -41,7 +41,7 @@ export const addDish = joi.object().keys({
   size: joi.number().required(),
   price: joi.number().required(),
   notes: joi.string(),
-  picture: joi.string().required(),
+  picture: joi.string(),
 });
 
 export const updateDish = joi.object().keys({
