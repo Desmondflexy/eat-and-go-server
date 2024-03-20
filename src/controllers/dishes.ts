@@ -1,7 +1,8 @@
-import Dish from "../models/dish";
 import { Request, Response } from "express";
-import * as v from "../utils/validators";
+import Dish from "../models/dish";
 import { deleteFromCloud, upload2cloud } from "../utils/helper-functions";
+import * as v from "../utils/validators";
+import Order from "../models/order";
 
 export async function addDish(req: Request, res: Response) {
   try {
@@ -144,6 +145,80 @@ export async function updateDish(req: Request, res: Response) {
     await dish.save();
     return res.json({
       message: `Dish '${dish.name}' updated successfully!`,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+// Adding a dish to Cart and calculating the amount
+export async function addToCart(req: Request, res: Response) {
+  try {
+    const dishId = req.body.dishId;
+    const quantity = req.body.quantity || 1; // Default quantity is 1
+    const dish = await Dish.findById(dishId);
+
+    if (!dish) {
+      return res.status(404).json({
+        message: "Not found",
+        error: "Dish not found",
+      });
+    }
+
+    // Calculate the total amount
+    const totalAmount = dish.price * quantity;
+
+    // Add the dish to the cart
+    req.user.cart.push({
+      dish: dishId,
+      quantity: quantity,
+      totalAmount: totalAmount,
+    });
+
+    await req.user.save();
+
+    res.json({
+      message: `Dish '${dish.name}' added to cart successfully`,
+      cart: req.user.cart,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+//Making an order request from Cart
+export async function makeOrder(req: Request, res: Response) {
+  try {
+    const cartItems = req.user.cart;
+
+    const order = new Order({
+      userId: req.user.id,
+      items: cartItems.map((item) => ({
+        dish: item.dish,
+        quantity: item.quantity,
+        totalAmount: item.totalAmount,
+      })),
+      status: "Pending", // Default status
+    });
+
+    // Clear the user's cart after making an order
+    req.user.cart = [];
+    await req.user.save();
+
+    // Save the order
+    await order.save();
+
+    res.json({
+      message: "Order placed successfully",
+      order: order,
     });
   } catch (error: any) {
     console.error(error);
