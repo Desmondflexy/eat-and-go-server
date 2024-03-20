@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 export interface IPayload {
+  save(): unknown;
+  cart: any;
   id: string;
   role: string;
 }

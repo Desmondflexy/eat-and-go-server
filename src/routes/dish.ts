@@ -17,4 +17,10 @@ router.post(
 );
 router.put("/:id", authenticate, upload.single("picture"), dish.updateDish);
 
+// Add endpoint for adding a dish to the cart and calculating amount
+router.post("/add-to-cart", authenticate, dish.addToCart);
+
+// Add endpoint for making an order request
+router.post("/make-order", authenticate, dish.makeOrder);
+
 export default router;

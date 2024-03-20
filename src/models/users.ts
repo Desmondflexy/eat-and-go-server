@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { IDish } from "./dish"; // Importing the IDish interface for reference
 
 export interface IUser extends mongoose.Document {
   first: string;
@@ -9,6 +10,7 @@ export interface IUser extends mongoose.Document {
   isEmailVerified: boolean;
   role: "customer" | "vendor" | "admin";
   picture?: string;
+  cart: { dish: IDish["_id"]; quantity: number; totalAmount: number }[]; // Cart structure
   createdAt: string;
   updatedAt: string;
 }
@@ -49,7 +51,24 @@ const userSchema = new mongoose.Schema<IUser>(
     picture: {
       type: String,
     },
+    cart: [
+      {
+        dish: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Dish",
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
+        totalAmount: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
   },
+
   {
     timestamps: true,
   },
