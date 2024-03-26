@@ -2,23 +2,18 @@ import cloudinary from "../config/cloudinary";
 
 /**Returns "valid" if password passes all tests otherwise returns the reason for failure. */
 export function passwordCheck(password: string) {
-  const alphabetsLower = /[a-z]/;
-  const alphabetsUpper = /[A-Z]/;
-  const numbers = /[0-9]/;
-  const specialChars = /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
-
-  if (!alphabetsLower.test(password)) {
+  if (!/[a-z]/.test(password)) {
     return "Password must contain at least one lowercase letter";
   }
-  if (!alphabetsUpper.test(password)) {
-    return "Password must contain at least one uppercase letter";
-  }
-  if (!numbers.test(password)) {
+  // if (!/[A-Z]/.test(password)) {
+  //   return "Password must contain at least one uppercase letter";
+  // }
+  if (!/[0-9]/.test(password)) {
     return "Password must contain at least one number";
   }
-  if (!specialChars.test(password)) {
-    return "Password must contain at least one special character";
-  }
+  // if (!/[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/.test(password)) {
+  //   return "Password must contain at least one special character";
+  // }
   return "valid";
 }
 
@@ -43,4 +38,17 @@ export async function deleteFromCloud(imageUrl: string) {
   } catch (error) {
     console.warn("Error deleting image", error);
   }
+}
+
+/**Command to update user fields in database if fields not present */
+export async function runCommand() {
+  const User = await import("../models/users");
+  const users = await User.default.find();
+  for (const user of users) {
+    if (!user.cart) {
+      user.cart = [];
+      await user.save();
+    }
+  }
+  console.log("Command run successfully");
 }

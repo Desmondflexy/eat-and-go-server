@@ -1,18 +1,25 @@
 import mongoose from "mongoose";
-import { IDish } from "./dish"; // Importing the IDish interface for reference
+// import { IDish } from "./dish"; // Importing the IDish interface for reference
 
 export interface IUser extends mongoose.Document {
   first: string;
   last: string;
   email: string;
-  phone: string;
+  phone?: string;
   password: string;
   isEmailVerified: boolean;
   role: "customer" | "vendor" | "admin";
   picture?: string;
-  cart: { dish: IDish["_id"]; quantity: number; totalAmount: number }[]; // Cart structure
+  cart: {
+    dishId: string;
+    quantity: number;
+    totalAmount: number;
+    weight: number;
+  }[];
   createdAt: string;
   updatedAt: string;
+  ssoId?: string;
+  ssoProvider?: string;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -34,7 +41,6 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     phone: {
       type: String,
-      required: true,
     },
     password: {
       type: String,
@@ -51,22 +57,36 @@ const userSchema = new mongoose.Schema<IUser>(
     picture: {
       type: String,
     },
-    cart: [
-      {
-        dish: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Dish",
+    cart: {
+      type: [
+        {
+          dishId: {
+            type: String,
+            ref: "Dish",
+          },
+          quantity: {
+            type: Number,
+            default: 1,
+          },
+          totalAmount: {
+            type: Number,
+            required: true,
+          },
+          weight: {
+            type: Number,
+            required: true,
+          },
+          _id: false,
         },
-        quantity: {
-          type: Number,
-          default: 1,
-        },
-        totalAmount: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+      ],
+      default: [],
+    },
+    ssoId: {
+      type: String,
+    },
+    ssoProvider: {
+      type: String,
+    },
   },
 
   {

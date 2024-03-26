@@ -51,4 +51,22 @@ export const updateDish = joi.object().keys({
   price: joi.number(),
   notes: joi.string(),
   picture: joi.string(),
+  isAvailable: joi.boolean(),
+});
+
+export const updateUserInfo = joi.object().keys({
+  first: joi.string(),
+  last: joi.string(),
+  phone: joi.string(),
+  picture: joi.string(),
+});
+
+export const updatePassword = joi.object().keys({
+  oldPassword: joi.string().required(),
+  password: joi.string().min(6).required(),
+  confirm: joi
+    .string()
+    .valid(joi.ref("password"))
+    .required()
+    .messages({ "any.only": "Passwords do not match" }),
 });

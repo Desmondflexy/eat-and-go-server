@@ -2,8 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 export interface IPayload {
-  save(): unknown;
-  cart: any;
   id: string;
   role: string;
 }
@@ -35,7 +33,7 @@ export function isVendor(req: Request, res: Response, next: NextFunction) {
   if (req.user.role !== "vendor") {
     return res.status(403).json({
       message: "Forbidden",
-      error: "You are not authorized to access this resource",
+      error: "Only vendors are allowed to access this route",
     });
   }
   next();

@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/", authenticate, dish.getAllDishes);
 router.get("/:id", authenticate, dish.getDish);
-router.delete("/:id", authenticate, dish.deleteDish);
+router.delete("/:id", authenticate, isVendor, dish.deleteDish);
 router.post(
   "/",
   authenticate,
@@ -15,12 +15,15 @@ router.post(
   upload.single("picture"),
   dish.addDish,
 );
-router.put("/:id", authenticate, upload.single("picture"), dish.updateDish);
+router.put(
+  "/:id",
+  authenticate,
+  isVendor,
+  upload.single("picture"),
+  dish.updateDish,
+);
 
-// Add endpoint for adding a dish to the cart and calculating amount
-router.post("/add-to-cart", authenticate, dish.addToCart);
-
-// Add endpoint for making an order request
-router.post("/make-order", authenticate, dish.makeOrder);
+// // Add endpoint for adding a dish to the cart and calculating amount
+// //router.post("/addcart/:dishId", authenticate, dish.addToCart);
 
 export default router;

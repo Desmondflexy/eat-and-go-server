@@ -1,5 +1,6 @@
 import express from "express";
 import * as authController from "../controllers/auth";
+// import passport from "passport";
 
 const router = express.Router();
 
@@ -10,8 +11,12 @@ router.post("/forgot-password", authController.requestPasswordReset);
 router.post("/reset-password/:userId", authController.resetPassword);
 router.post("/login", authController.login);
 router.get("/logout", authController.logout);
+router.post("/google/redirect", authController.googleSignOn);
 
-// router.get("/login/federated/google", passport.authenticate("google"));
+// router.get(
+//   "/login/federated/google",
+//   passport.authenticate("google", { scope: ["profile"] }),
+// );
 
 // router.get(
 //   "/oauth2/redirect/google",

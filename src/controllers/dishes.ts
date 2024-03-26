@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import Dish from "../models/dish";
 import { deleteFromCloud, upload2cloud } from "../utils/helper-functions";
 import * as v from "../utils/validators";
-import Order from "../models/order";
 
 export async function addDish(req: Request, res: Response) {
   try {
@@ -15,10 +14,11 @@ export async function addDish(req: Request, res: Response) {
       });
     }
     // picture size should not exceed 500KB
-    if (req.file?.size && req.file.size > 0.5 * 1000 * 1000) {
+    if (req.file?.size && req.file.size > 1 * 1024 * 1024) {
+      console.log(req.file.size);
       return res.status(400).json({
         message: "Bad request",
-        error: "Picture size should not exceed 500 KB",
+        error: "Picture size should not exceed 1 MB",
       });
     }
     // create a new dish
@@ -91,6 +91,7 @@ export async function deleteDish(req: Request, res: Response) {
         error: "Dish not found",
       });
     }
+    if (dish.picture) await deleteFromCloud(dish.picture);
     await dish.deleteOne();
     return res.json({
       message: `Dish '${dish.name}' deleted successfully`,
@@ -130,95 +131,21 @@ export async function updateDish(req: Request, res: Response) {
     dish.size = req.body.size || dish.size;
     dish.price = req.body.price || dish.price;
     dish.notes = req.body.notes || dish.notes;
+    dish.isAvailable = req.body.isAvailable || dish.isAvailable;
 
     if (req.file) {
-      // picture size should not exceed 500KB
-      if (req.file.size > 0.5 * 1000 * 1000) {
+      if (req.file.size > 1 * 1000 * 1000) {
         return res.status(400).json({
           message: "Bad request",
-          error: "Picture size should not exceed 500 KB",
+          error: "Picture size should not exceed 1 MB",
         });
       }
-      await deleteFromCloud(dish.picture);
+      if (dish.picture) await deleteFromCloud(dish.picture);
       dish.picture = await upload2cloud(req.file.path);
     }
     await dish.save();
     return res.json({
       message: `Dish '${dish.name}' updated successfully!`,
-    });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-}
-
-// Adding a dish to Cart and calculating the amount
-export async function addToCart(req: Request, res: Response) {
-  try {
-    const dishId = req.body.dishId;
-    const quantity = req.body.quantity || 1; // Default quantity is 1
-    const dish = await Dish.findById(dishId);
-
-    if (!dish) {
-      return res.status(404).json({
-        message: "Not found",
-        error: "Dish not found",
-      });
-    }
-
-    // Calculate the total amount
-    const totalAmount = dish.price * quantity;
-
-    // Add the dish to the cart
-    req.user.cart.push({
-      dish: dishId,
-      quantity: quantity,
-      totalAmount: totalAmount,
-    });
-
-    await req.user.save();
-
-    res.json({
-      message: `Dish '${dish.name}' added to cart successfully`,
-      cart: req.user.cart,
-    });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-}
-
-//Making an order request from Cart
-export async function makeOrder(req: Request, res: Response) {
-  try {
-    const cartItems = req.user.cart;
-
-    const order = new Order({
-      userId: req.user.id,
-      items: cartItems.map((item) => ({
-        dish: item.dish,
-        quantity: item.quantity,
-        totalAmount: item.totalAmount,
-      })),
-      status: "Pending", // Default status
-    });
-
-    // Clear the user's cart after making an order
-    req.user.cart = [];
-    await req.user.save();
-
-    // Save the order
-    await order.save();
-
-    res.json({
-      message: "Order placed successfully",
-      order: order,
     });
   } catch (error: any) {
     console.error(error);

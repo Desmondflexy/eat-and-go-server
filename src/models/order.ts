@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
-import { IUser } from "./users"; // Import the IUser interface for reference
-import { IDish } from "./dish"; // Import the IDish interface for reference
 
-// eslint-disable-next-line prettier/prettier
 export interface IOrder extends mongoose.Document {
-  userId: IUser["_id"]; // Reference to User ID
-  items: { dish: IDish["_id"]; quantity: number; totalAmount: number }[]; // Order items
+  userId: string;
+  items: {
+    dish: string;
+    quantity: number;
+    totalAmount: number;
+    weight: number;
+  }[];
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -14,31 +16,38 @@ export interface IOrder extends mongoose.Document {
 const orderSchema = new mongoose.Schema<IOrder>(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
       required: true,
     },
-    items: [
-      {
-        dish: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Dish",
-          required: true,
+    items: {
+      type: [
+        {
+          dish: {
+            type: String,
+            ref: "Dish",
+            required: true,
+          },
+          quantity: {
+            type: Number,
+            required: true,
+          },
+          totalAmount: {
+            type: Number,
+            required: true,
+          },
+          weight: {
+            type: Number,
+            required: true,
+          },
+          _id: false,
         },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        totalAmount: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+      ],
+    },
     status: {
       type: String,
       default: "Pending",
-      enum: ["Pending", "Processing", "Completed", "Cancelled"], // Define possible status values
+      enum: ["Pending", "Processing", "Completed", "Cancelled"],
     },
   },
   {
