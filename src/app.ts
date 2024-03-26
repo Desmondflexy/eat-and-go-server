@@ -8,6 +8,8 @@ import indexRouter from "./routes/index";
 import usersRouter from "./routes/users";
 import authRouter from "./routes/auth";
 import dishRouter from "./routes/dish";
+import ordersRouter from "./routes/orders";
+import cartRouter from "./routes/cart";
 
 import dotenv from "dotenv";
 import connectDB from "./config/database";
@@ -38,6 +40,8 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/dish", dishRouter);
+app.use("/orders", ordersRouter);
+app.use("/cart", cartRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -54,5 +58,7 @@ app.use((err: HttpError, req: Request, res: Response) => {
   res.status(err.status || 500);
   res.render("error");
 });
+
+// import("./utils/helper-functions").then((module) => module.runCommand());
 
 export default app;

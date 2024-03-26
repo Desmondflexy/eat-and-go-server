@@ -1,11 +1,14 @@
 import express from "express";
-import { deleteUser, getAllUsers, getUser } from "../controllers/users";
+import * as users from "../controllers/users";
 import { authenticate } from "../middleware/authentication";
+import upload from "../middleware/multer";
 
 const router = express.Router();
 
-router.get("/", getAllUsers);
-router.get("/user", authenticate, getUser);
-router.delete("/user", authenticate, deleteUser);
+router.get("/", users.getAllUsers);
+router.get("/me", authenticate, users.getUser);
+router.delete("/:id", authenticate, users.deleteUser);
+router.put("/me", authenticate, upload.single("picture"), users.updateUser);
+router.put("/me/change-password", authenticate, users.updatePassword);
 
 export default router;

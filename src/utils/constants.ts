@@ -1,4 +1,4 @@
-export const baseUrl =
+export const BASE_URL =
   process.env.NODE_ENV === "development"
     ? `http://localhost:${process.env.PORT}`
     : process.env.SERVER_URL;
@@ -9,7 +9,7 @@ export const getEmailVerificationText = (name: string, userId: string) => {
   <p>Hi ${name},</p>
   <p>Thank you for signing up with Eat-and-Go</p>
   <p>Click the button to verify your email address</p> <br>
-  <a href="${baseUrl}/auth/email-verify/${userId}">
+  <a href="${BASE_URL}/auth/email-verify/${userId}">
     <button style="background-color: blue; border-radius: 4px; border: none; color: white; padding: 8px 12px;">
       Verify Email
     </button>

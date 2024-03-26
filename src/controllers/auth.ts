@@ -262,3 +262,59 @@ export function logout(req: Request, res: Response) {
     message: "Logged out successfully",
   });
 }
+
+export async function googleSignOn(req: Request, res: Response) {
+  try {
+    const { id, email, name } = req.body;
+    let user = await User.findOne({ email });
+    if (!user) {
+      // no user with this email, create one
+      const fullname = name.split(" ");
+      user = new User({
+        email,
+        first: fullname[0],
+        last: fullname[1],
+        role: "customer",
+        isEmailVerified: true,
+        ssoId: id,
+        ssoProvider: "Google",
+      });
+      await user.save();
+    } else if (!user.ssoProvider) {
+      // user exists but has not signed in with Google before
+      user.ssoProvider = "Google";
+      user.ssoId = id;
+      await user.save();
+    }
+
+    // grant user a token
+    const secretKey = process.env.JWT_SECRET as string;
+    const expiresIn = Number(process.env.JWT_EXPIRES_IN) * 3600;
+
+    const jwtPayload: IPayload = {
+      id: user._id,
+      role: user.role,
+    };
+
+    const token = jwt.sign(jwtPayload, secretKey, { expiresIn });
+
+    // attach the token to the headers; save in cookies
+    res.setHeader("Authorization", `Bearer ${token}`);
+    res.cookie("token", token, { maxAge: expiresIn * 1000, httpOnly: true });
+
+    return res.json({
+      message: "Login successful",
+      user: {
+        _id: user._id,
+        first: user.first,
+        last: user.last,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+      token,
+    });
+  } catch (error: any) {
+    //
+  }
+}

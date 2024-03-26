@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { IUser } from "./users"; //Importing the IUser interface for reference
 
 export interface IDish extends mongoose.Document {
   name: string;
@@ -8,10 +7,10 @@ export interface IDish extends mongoose.Document {
   price: number;
   notes?: string;
   picture: string;
-  vendorId: IUser["_id"]; // Reference to User ID
-  // vendorId: string;
+  vendorId: string;
   createdAt: string;
   updatedAt: string;
+  isAvailable: boolean;
 }
 
 const dishSchema = new mongoose.Schema<IDish>(
@@ -44,16 +43,15 @@ const dishSchema = new mongoose.Schema<IDish>(
       required: true,
       ref: "User",
     },
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
   },
 );
-
-// Method to find a dish by ID
-dishSchema.statics.findById = async function (id: string) {
-  return this.findOne({ _id: id });
-};
 
 const Dish = mongoose.model<IDish>("Dish", dishSchema);
 export default Dish;
