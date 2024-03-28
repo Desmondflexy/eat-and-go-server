@@ -70,3 +70,9 @@ export const updatePassword = joi.object().keys({
     .required()
     .messages({ "any.only": "Passwords do not match" }),
 });
+
+export const googleSignOn = joi.object().keys({
+  id: joi.string().required(),
+  email: joi.string().email().required(),
+  name: joi.string().required(),
+});

@@ -9,7 +9,6 @@ import {
   getResetPasswordText,
 } from "../utils/constants";
 import jwt from "jsonwebtoken";
-import { IPayload } from "../middleware/authentication";
 import { passwordCheck } from "../utils/helper-functions";
 
 export async function signup(req: Request, res: Response) {
@@ -222,7 +221,7 @@ export async function login(req: Request, res: Response) {
     const secretKey = process.env.JWT_SECRET as string;
     const expiresIn = Number(process.env.JWT_EXPIRES_IN) * 3600;
 
-    const jwtPayload: IPayload = {
+    const jwtPayload = {
       id: user._id,
       role: user.role,
     };
@@ -263,10 +262,19 @@ export function logout(req: Request, res: Response) {
   });
 }
 
+/**Sign in with Google. User id, email and name is sent from the client */
 export async function googleSignOn(req: Request, res: Response) {
   try {
     const { id, email, name } = req.body;
+    const { error } = v.googleSignOn.validate(req.body, v.options);
+    if (error) {
+      return res.status(400).json({
+        message: "Validation failed",
+        error: error.details.map((err) => err.message),
+      });
+    }
     let user = await User.findOne({ email });
+
     if (!user) {
       // no user with this email, create one
       const fullname = name.split(" ");
@@ -291,7 +299,7 @@ export async function googleSignOn(req: Request, res: Response) {
     const secretKey = process.env.JWT_SECRET as string;
     const expiresIn = Number(process.env.JWT_EXPIRES_IN) * 3600;
 
-    const jwtPayload: IPayload = {
+    const jwtPayload = {
       id: user._id,
       role: user.role,
     };
