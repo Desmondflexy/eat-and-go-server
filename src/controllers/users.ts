@@ -7,6 +7,8 @@ import {
   passwordCheck,
   upload2cloud,
 } from "../utils/helper-functions";
+import sendMail from "../config/nodemailer";
+import { getProfileUpdateText } from "../utils/constants";
 
 export async function getAllUsers(req: Request, res: Response) {
   try {
@@ -89,16 +91,19 @@ export async function updateUser(req: Request, res: Response) {
 
     // update profile picture
     if (req.file) {
-      if (req.file.size > 1 * 1000 * 1000) {
+      if (req.file.size > 3 * 1000 * 1000) {
         return res.status(400).json({
           message: "Bad request",
-          error: "Picture size should not exceed 1 MB",
+          error: "Picture size should not exceed 3 MB",
         });
       }
       if (user.picture) await deleteFromCloud(user.picture);
       user.picture = await upload2cloud(req.file.path);
     }
     await user.save();
+    const message = getProfileUpdateText(user.first);
+    sendMail(user.email, "Profile updated", message);
+    console.log(user.email);
     return res.json({
       message: "Profile updated successfully",
     });

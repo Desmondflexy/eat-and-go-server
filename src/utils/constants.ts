@@ -31,3 +31,13 @@ export const getResetPasswordText = (name: string, userId: string) => {
   `;
   return message;
 };
+
+export const getProfileUpdateText = (name: string) => {
+  const message = `
+  <p>Hi ${name},</p>
+  <p>Your profile has been updated successfully.</p>
+  <p>If you did not make this change, please secure your account immediately.</p>
+  <p>Thank you for using Eat-and-Go</p>
+  `;
+  return message;
+};
