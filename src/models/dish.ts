@@ -10,7 +10,7 @@ export interface IDish extends mongoose.Document {
   vendorId: string;
   createdAt: string;
   updatedAt: string;
-  isAvailable: boolean;
+  availability: string;
 }
 
 const dishSchema = new mongoose.Schema<IDish>(
@@ -43,9 +43,9 @@ const dishSchema = new mongoose.Schema<IDish>(
       required: true,
       ref: "User",
     },
-    isAvailable: {
-      type: Boolean,
-      default: true,
+    availability: {
+      type: String,
+      required: true,
     },
   },
   {
