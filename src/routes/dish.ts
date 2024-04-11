@@ -6,6 +6,8 @@ import upload from "../middleware/multer";
 const router = express.Router();
 
 router.get("/", authenticate, dish.getAllDishes);
+router.get("/me", authenticate, isVendor, dish.getVendorDishes);
+router.get("/:id/vendor", authenticate, dish.getDishByVendorId);
 router.get("/:id", authenticate, dish.getDish);
 router.delete("/:id", authenticate, isVendor, dish.deleteDish);
 router.post(
@@ -22,8 +24,5 @@ router.put(
   upload.single("picture"),
   dish.updateDish,
 );
-
-// // Add endpoint for adding a dish to the cart and calculating amount
-// //router.post("/addcart/:dishId", authenticate, dish.addToCart);
 
 export default router;

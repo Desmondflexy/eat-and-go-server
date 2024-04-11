@@ -13,9 +13,8 @@ export async function addDish(req: Request, res: Response) {
         error: error.details.map((err) => err.message),
       });
     }
-    // picture size should not exceed 500KB
-    if (req.file?.size && req.file.size > 1 * 1024 * 1024) {
-      console.log(req.file.size);
+    // picture size should not exceed 1mb
+    if (req.file?.size && req.file.size > 1 * 1000 * 1000) {
       return res.status(400).json({
         message: "Bad request",
         error: "Picture size should not exceed 1 MB",
@@ -29,6 +28,7 @@ export async function addDish(req: Request, res: Response) {
       price: req.body.price,
       notes: req.body.notes,
       picture: await upload2cloud(req.file?.path),
+      availability: req.body.availability,
       vendorId: req.user.id,
     });
     res.json({
@@ -131,7 +131,7 @@ export async function updateDish(req: Request, res: Response) {
     dish.size = req.body.size || dish.size;
     dish.price = req.body.price || dish.price;
     dish.notes = req.body.notes || dish.notes;
-    dish.isAvailable = req.body.isAvailable || dish.isAvailable;
+    dish.availability = req.body.availability || dish.availability;
 
     if (req.file) {
       if (req.file.size > 1 * 1000 * 1000) {
@@ -146,6 +146,38 @@ export async function updateDish(req: Request, res: Response) {
     await dish.save();
     return res.json({
       message: `Dish '${dish.name}' updated successfully!`,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+export async function getVendorDishes(req: Request, res: Response) {
+  try {
+    const dishes = await Dish.find({ vendorId: req.user.id });
+    return res.json({
+      message: "My dishes",
+      dishes,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+export async function getDishByVendorId(req: Request, res: Response) {
+  try {
+    const dishes = await Dish.find({ vendorId: req.params.id });
+    return res.json({
+      message: "Vendor dishes",
+      dishes,
     });
   } catch (error: any) {
     console.error(error);
