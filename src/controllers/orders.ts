@@ -1,6 +1,7 @@
 import Order from "../models/order";
 import User, { IUser } from "../models/users";
 import { Request, Response } from "express";
+import { sendOrderDetailsEmail } from "../services/emailService";
 
 export async function getAllOrders(req: Request, res: Response) {
   try {
@@ -93,5 +94,26 @@ export async function createOrder(req: Request, res: Response) {
       message: "Internal server error",
       error: error.message,
     });
+  }
+}
+
+export async function sendOrderDetails(req: Request, res: Response) {
+  try {
+    const orderId = req.body.orderId;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Not found",
+        error: "Order not found",
+      });
+    }
+
+    // Send order details to the customer
+    await sendOrderDetailsEmail(order);
+    res.json({ message: "Order details sent to customer successfully" });
+  } catch (error: any) {
+    console.error("Error sending order details:", error);
+    res.status(500).json({ error: "Failed to send order details to customer" });
   }
 }
