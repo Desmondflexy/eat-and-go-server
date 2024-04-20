@@ -1,42 +1,40 @@
-import mongoose from "mongoose";
+import { Document, Types, Schema, model } from "mongoose";
+import { IDish } from "./dish";
 
-export interface IOrder extends mongoose.Document {
-  userId: string;
+export interface IOrder extends Document {
+  userId: Types.ObjectId;
+  orderNo: number;
   items: {
-    dish: string;
+    dish: IDish;
     quantity: number;
-    totalAmount: number;
-    weight: number;
   }[];
   status: string;
+  totalAmount: number;
   createdAt: string;
   updatedAt: string;
 }
 
-const orderSchema = new mongoose.Schema<IOrder>(
+const orderSchema = new Schema<IOrder>(
   {
     userId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    orderNo: {
+      type: Number,
+      required: true,
+      unique: true,
     },
     items: {
       type: [
         {
           dish: {
-            type: String,
+            type: Schema.Types.ObjectId,
             ref: "Dish",
             required: true,
           },
           quantity: {
-            type: Number,
-            required: true,
-          },
-          totalAmount: {
-            type: Number,
-            required: true,
-          },
-          weight: {
             type: Number,
             required: true,
           },
@@ -49,11 +47,15 @@ const orderSchema = new mongoose.Schema<IOrder>(
       default: "Pending",
       enum: ["Pending", "Processing", "Completed", "Cancelled"],
     },
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,
   },
 );
 
-const Order = mongoose.model<IOrder>("Order", orderSchema);
+const Order = model<IOrder>("Order", orderSchema);
 export default Order;

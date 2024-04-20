@@ -1,19 +1,15 @@
 import cloudinary from "../config/cloudinary";
+import Order from "../models/order";
+import { IUser } from "../models/users";
 
 /**Returns "valid" if password passes all tests otherwise returns the reason for failure. */
 export function passwordCheck(password: string) {
   if (!/[a-z]/.test(password)) {
     return "Password must contain at least one lowercase letter";
   }
-  // if (!/[A-Z]/.test(password)) {
-  //   return "Password must contain at least one uppercase letter";
-  // }
   if (!/[0-9]/.test(password)) {
     return "Password must contain at least one number";
   }
-  // if (!/[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/.test(password)) {
-  //   return "Password must contain at least one special character";
-  // }
   return "valid";
 }
 
@@ -51,4 +47,67 @@ export async function runCommand() {
     }
   }
   console.log("Command run successfully");
+}
+
+export async function generateOrderNo() {
+  let orderNo = Math.floor(Math.random() * 10000000000);
+  let user = await Order.findOne({ orderNo });
+  while (user) {
+    orderNo = Math.floor(Math.random() * 10000000000);
+    user = await Order.findOne({ orderNo });
+  }
+  return orderNo.toString();
+}
+
+type orderMessageType = {
+  orderNo: number;
+  totalAmount: number;
+  date: string;
+  items: {
+    name: string;
+    quantity: number;
+    price: number;
+    weight: number;
+  }[];
+};
+
+export function generateOrderMessage(order: orderMessageType) {
+  let itemsList = "";
+  order.items.forEach((item) => {
+    itemsList += `<li>${item.quantity}x ${item.name}: N${(item.price * item.quantity).toFixed(2)}</li>`;
+  });
+  const message = `
+      <h1>Order Confirmation</h1>
+      <p>Thank you for placing an order with us. Your order has been placed successfully.</p>
+      <p>Order No: ${order.orderNo}</p>
+      <h2>Order Items:</h2>
+      <ul>
+        ${itemsList}
+      </ul>
+      <p>Total Amount: N${order.totalAmount}</p>
+      <p>Order Date: ${order.date}</p>
+      `;
+  return message;
+}
+
+/**Utlity function that returns the current state of the user's cart */
+export async function cartInfo(user: IUser) {
+  user = await user.populate({
+    path: "cart.dish",
+    select: "-__v -createdAt -updatedAt",
+  });
+  const cartItems = user.cart;
+  const outputData = {
+    items: cartItems,
+    subTotal: cartItems.reduce(
+      (acc, item) => acc + item.dish.price * item.quantity,
+      0,
+    ),
+    itemsTotal: cartItems.reduce((acc, item) => acc + item.quantity, 0),
+    weightTotal: cartItems.reduce(
+      (acc, item) => acc + item.quantity * item.dish.size,
+      0,
+    ),
+  };
+  return outputData;
 }

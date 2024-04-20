@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
   auth: { user, pass },
 });
 
-/**  */
+/** Utility function to send emails for the application */
 function sendMail(to: string, subject: string, content: string) {
   const mailOptions = { from: user, to, subject, html: content };
 

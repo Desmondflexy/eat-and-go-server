@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-// import { IDish } from "./dish"; // Importing the IDish interface for reference
+import { Document, Schema, model } from "mongoose";
+import { IDish } from "./dish";
 
-export interface IUser extends mongoose.Document {
+export interface IUser extends Document {
   first: string;
   last: string;
   email: string;
@@ -11,10 +11,8 @@ export interface IUser extends mongoose.Document {
   role: "customer" | "vendor" | "admin";
   picture?: string;
   cart: {
-    dishId: string;
+    dish: IDish;
     quantity: number;
-    totalAmount: number;
-    weight: number;
   }[];
   createdAt: string;
   updatedAt: string;
@@ -22,7 +20,7 @@ export interface IUser extends mongoose.Document {
   ssoProvider?: string;
 }
 
-const userSchema = new mongoose.Schema<IUser>(
+const userSchema = new Schema<IUser>(
   {
     first: {
       type: String,
@@ -60,20 +58,14 @@ const userSchema = new mongoose.Schema<IUser>(
     cart: {
       type: [
         {
-          dishId: {
-            type: String,
+          dish: {
+            type: Schema.Types.ObjectId,
             ref: "Dish",
+            required: true,
           },
           quantity: {
             type: Number,
             default: 1,
-          },
-          totalAmount: {
-            type: Number,
-            required: true,
-          },
-          weight: {
-            type: Number,
             required: true,
           },
           _id: false,
@@ -94,6 +86,6 @@ const userSchema = new mongoose.Schema<IUser>(
   },
 );
 
-const User = mongoose.model<IUser>("User", userSchema);
+const User = model<IUser>("User", userSchema);
 
 export default User;
